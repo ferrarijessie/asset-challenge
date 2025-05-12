@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "5065:5000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/assets
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      PYTHONPATH: /app
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    command: serve
+
+  test:
+    build: .
+    environment:
+      PYTHONPATH: /app
+      SQLALCHEMY_DATABASE_URI: "sqlite:///:memory:"
+      FLASK_APP: app.py
+      FLASK_ENV: testing
+    volumes:
+      - .:/app
+    command: test
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: assets
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
